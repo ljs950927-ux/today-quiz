@@ -29,6 +29,21 @@ export type HistoryItem = {
   isCorrect: boolean;
 };
 
+export type AnswerHistoryItem = {
+  id: string;
+  quizId: string;
+  answeredAt: string;
+  answeredDate: string;
+  quizDate: string;
+  question: string;
+  selectedIndex: number;
+  selectedChoice: string;
+  isCorrect: boolean;
+  category: string;
+  difficulty: QuizDifficulty;
+  explanation: string;
+};
+
 export type AdminQuizItem = QuizSummary & {
   aiGenerated: boolean;
   reviewStatus: ReviewStatus;

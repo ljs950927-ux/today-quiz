@@ -184,6 +184,23 @@ export type Database = {
           already_answered: boolean;
         }[];
       };
+      get_answer_history: {
+        Args: Record<string, never>;
+        Returns: {
+          answer_id: string;
+          quiz_id: string;
+          answered_at: string;
+          answered_date: string;
+          quiz_date: string;
+          question: string;
+          selected_index: number;
+          selected_choice: string;
+          is_correct: boolean;
+          category: string;
+          difficulty: "easy" | "normal" | "hard";
+          explanation: string;
+        }[];
+      };
       update_nickname: {
         Args: {
           p_nickname: string;
