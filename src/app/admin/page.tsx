@@ -1,6 +1,7 @@
-import { Plus, WandSparkles } from "lucide-react";
+import { Plus, ShieldAlert, WandSparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { StatusPill } from "@/components/ui/status-pill";
+import { getAdminStatus } from "@/features/admin/api";
 import { adminQuizzes } from "@/lib/mock-data";
 
 export const dynamic = "force-dynamic";
@@ -17,50 +18,78 @@ const reviewLabel = {
   rejected: "반려",
 };
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  const adminStatus = await getAdminStatus();
+  const canAccessAdmin =
+    adminStatus.status === "success" && adminStatus.isAdmin;
+
   return (
     <AppShell title="퀴즈 관리" subtitle="등록, 검수, 공개 상태를 관리합니다">
-      <div className="space-y-4">
-        <section className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            className="touch-target inline-flex items-center justify-center gap-2 rounded-lg bg-app-teal px-3 py-3 text-sm font-bold text-white"
-          >
-            <Plus aria-hidden="true" className="h-5 w-5" />
-            새 퀴즈
-          </button>
-          <button
-            type="button"
-            className="touch-target inline-flex items-center justify-center gap-2 rounded-lg border border-app-line bg-white px-3 py-3 text-sm font-bold text-app-ink"
-          >
-            <WandSparkles aria-hidden="true" className="h-5 w-5 text-app-coral" />
-            AI 생성
-          </button>
-        </section>
-
-        <div className="space-y-3">
-          {adminQuizzes.map((quiz) => (
-            <section
-              key={quiz.id}
-              className="rounded-lg border border-app-line bg-white p-4 shadow-sm"
+      {canAccessAdmin ? (
+        <div className="space-y-4">
+          <section className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              className="touch-target inline-flex items-center justify-center gap-2 rounded-lg bg-app-teal px-3 py-3 text-sm font-bold text-white"
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <StatusPill tone={statusTone[quiz.status]}>{quiz.status}</StatusPill>
-                <StatusPill tone={quiz.aiGenerated ? "coral" : "blue"}>
-                  {quiz.aiGenerated ? "AI 생성" : "수동 등록"}
-                </StatusPill>
-                <StatusPill>{reviewLabel[quiz.reviewStatus]}</StatusPill>
-              </div>
-              <p className="mt-3 text-sm font-semibold text-app-muted">
-                {quiz.quizDate} · {quiz.category}
-              </p>
-              <h2 className="mt-2 text-base font-bold leading-6 text-app-ink">
-                {quiz.question}
-              </h2>
-            </section>
-          ))}
+              <Plus aria-hidden="true" className="h-5 w-5" />
+              새 퀴즈
+            </button>
+            <button
+              type="button"
+              className="touch-target inline-flex items-center justify-center gap-2 rounded-lg border border-app-line bg-white px-3 py-3 text-sm font-bold text-app-ink"
+            >
+              <WandSparkles
+                aria-hidden="true"
+                className="h-5 w-5 text-app-coral"
+              />
+              AI 생성
+            </button>
+          </section>
+
+          <div className="space-y-3">
+            {adminQuizzes.map((quiz) => (
+              <section
+                key={quiz.id}
+                className="rounded-lg border border-app-line bg-white p-4 shadow-sm"
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusPill tone={statusTone[quiz.status]}>
+                    {quiz.status}
+                  </StatusPill>
+                  <StatusPill tone={quiz.aiGenerated ? "coral" : "blue"}>
+                    {quiz.aiGenerated ? "AI 생성" : "수동 등록"}
+                  </StatusPill>
+                  <StatusPill>{reviewLabel[quiz.reviewStatus]}</StatusPill>
+                </div>
+                <p className="mt-3 text-sm font-semibold text-app-muted">
+                  {quiz.quizDate} · {quiz.category}
+                </p>
+                <h2 className="mt-2 text-base font-bold leading-6 text-app-ink">
+                  {quiz.question}
+                </h2>
+              </section>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <section className="rounded-lg border border-app-line bg-white p-5 text-center shadow-sm">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-app-coral/10 text-app-coral">
+            <ShieldAlert aria-hidden="true" className="h-6 w-6" />
+          </div>
+          <h2 className="mt-4 text-lg font-bold text-app-ink">
+            관리자 권한이 필요합니다
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-app-muted">
+            퀴즈 관리는 등록된 관리자만 접근할 수 있습니다.
+          </p>
+          {adminStatus.status === "error" ? (
+            <p className="mt-3 rounded-lg bg-app-soft px-3 py-2 text-xs font-semibold text-app-muted">
+              {adminStatus.message}
+            </p>
+          ) : null}
+        </section>
+      )}
     </AppShell>
   );
 }
