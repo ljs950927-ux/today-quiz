@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ShieldAlert } from "lucide-react";
 import { AdminQuizManager } from "@/components/admin/admin-quiz-manager";
 import { AppShell } from "@/components/layout/app-shell";
@@ -50,6 +51,12 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           <p className="mt-2 text-sm leading-6 text-app-muted">
             퀴즈 관리는 등록된 관리자만 접근할 수 있습니다.
           </p>
+          <Link
+            href="/admin/login"
+            className="touch-target mt-5 inline-flex items-center justify-center rounded-lg bg-app-teal px-4 py-3 text-sm font-bold text-white"
+          >
+            관리자 로그인
+          </Link>
           {adminStatus.status === "error" ? (
             <p className="mt-3 rounded-lg bg-app-soft px-3 py-2 text-xs font-semibold text-app-muted">
               {adminStatus.message}
