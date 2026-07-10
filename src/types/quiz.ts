@@ -45,6 +45,13 @@ export type AnswerHistoryItem = {
 };
 
 export type AdminQuizItem = QuizSummary & {
+  answerIndex: number;
+  explanation: string;
+  source: string | null;
   aiGenerated: boolean;
   reviewStatus: ReviewStatus;
+  reviewedAt: string | null;
+  reviewNote: string | null;
+  createdAt: string;
+  updatedAt: string;
 };

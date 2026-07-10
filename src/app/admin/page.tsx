@@ -1,77 +1,44 @@
-import { Plus, ShieldAlert, WandSparkles } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
+import { AdminQuizManager } from "@/components/admin/admin-quiz-manager";
 import { AppShell } from "@/components/layout/app-shell";
-import { StatusPill } from "@/components/ui/status-pill";
-import { getAdminStatus } from "@/features/admin/api";
-import { adminQuizzes } from "@/lib/mock-data";
+import { getAdminQuizzes, getAdminStatus } from "@/features/admin/api";
 
 export const dynamic = "force-dynamic";
 
-const statusTone = {
-  draft: "gray",
-  published: "teal",
-  archived: "coral",
-} as const;
-
-const reviewLabel = {
-  pending: "검수 대기",
-  approved: "승인",
-  rejected: "반려",
+type AdminPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: AdminPageProps) {
   const adminStatus = await getAdminStatus();
   const canAccessAdmin =
     adminStatus.status === "success" && adminStatus.isAdmin;
+  const quizzesResult = canAccessAdmin ? await getAdminQuizzes() : null;
+  const params = await searchParams;
+  const noticeMessage = getFirstParam(params.admin_notice);
+  const errorMessage = getFirstParam(params.admin_error);
 
   return (
     <AppShell title="퀴즈 관리" subtitle="등록, 검수, 공개 상태를 관리합니다">
       {canAccessAdmin ? (
-        <div className="space-y-4">
-          <section className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              className="touch-target inline-flex items-center justify-center gap-2 rounded-lg bg-app-teal px-3 py-3 text-sm font-bold text-white"
-            >
-              <Plus aria-hidden="true" className="h-5 w-5" />
-              새 퀴즈
-            </button>
-            <button
-              type="button"
-              className="touch-target inline-flex items-center justify-center gap-2 rounded-lg border border-app-line bg-white px-3 py-3 text-sm font-bold text-app-ink"
-            >
-              <WandSparkles
-                aria-hidden="true"
-                className="h-5 w-5 text-app-coral"
-              />
-              AI 생성
-            </button>
+        quizzesResult?.status === "success" ? (
+          <AdminQuizManager
+            quizzes={quizzesResult.quizzes}
+            defaultQuizDate={getKstDate()}
+            noticeMessage={noticeMessage}
+            errorMessage={errorMessage}
+          />
+        ) : (
+          <section className="rounded-lg border border-app-line bg-white p-5 text-center shadow-sm">
+            <h2 className="text-lg font-bold text-app-ink">
+              퀴즈 목록을 불러오지 못했습니다
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-app-muted">
+              {quizzesResult?.message ??
+                "잠시 후 다시 시도해 주세요."}
+            </p>
           </section>
-
-          <div className="space-y-3">
-            {adminQuizzes.map((quiz) => (
-              <section
-                key={quiz.id}
-                className="rounded-lg border border-app-line bg-white p-4 shadow-sm"
-              >
-                <div className="flex flex-wrap items-center gap-2">
-                  <StatusPill tone={statusTone[quiz.status]}>
-                    {quiz.status}
-                  </StatusPill>
-                  <StatusPill tone={quiz.aiGenerated ? "coral" : "blue"}>
-                    {quiz.aiGenerated ? "AI 생성" : "수동 등록"}
-                  </StatusPill>
-                  <StatusPill>{reviewLabel[quiz.reviewStatus]}</StatusPill>
-                </div>
-                <p className="mt-3 text-sm font-semibold text-app-muted">
-                  {quiz.quizDate} · {quiz.category}
-                </p>
-                <h2 className="mt-2 text-base font-bold leading-6 text-app-ink">
-                  {quiz.question}
-                </h2>
-              </section>
-            ))}
-          </div>
-        </div>
+        )
       ) : (
         <section className="rounded-lg border border-app-line bg-white p-5 text-center shadow-sm">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-app-coral/10 text-app-coral">
@@ -92,4 +59,19 @@ export default async function AdminPage() {
       )}
     </AppShell>
   );
+}
+
+function getFirstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value ?? null;
+}
+
+function getKstDate() {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  return formatter.format(new Date());
 }
