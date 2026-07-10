@@ -9,7 +9,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="border-t border-app-line bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2">
+    <nav className="sticky bottom-0 z-20 shrink-0 border-t border-app-line bg-white px-3 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2">
       <div className="grid grid-cols-4 gap-1">
         {bottomNavigation.map((item) => {
           const Icon = item.icon;

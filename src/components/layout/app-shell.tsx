@@ -16,8 +16,8 @@ export async function AppShell({ title, subtitle, children }: AppShellProps) {
 
   return (
     <main className="min-h-svh bg-app-bg text-app-ink sm:flex sm:items-center sm:justify-center sm:px-4">
-      <div className="mx-auto flex min-h-svh w-full max-w-[430px] flex-col bg-[#fbfcfe] shadow-none sm:my-6 sm:min-h-[calc(100svh-3rem)] sm:rounded-lg sm:border sm:border-app-line sm:shadow-app">
-        <header className="border-b border-app-line bg-white px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] sm:rounded-t-lg">
+      <div className="mx-auto flex h-svh max-h-svh w-full max-w-[430px] flex-col overflow-hidden bg-[#fbfcfe] shadow-none sm:my-6 sm:h-[calc(100svh-3rem)] sm:rounded-lg sm:border sm:border-app-line sm:shadow-app">
+        <header className="shrink-0 border-b border-app-line bg-white px-5 pb-4 pt-[calc(env(safe-area-inset-top)+1rem)] sm:rounded-t-lg">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-bold text-app-teal">오늘상식</p>
@@ -54,7 +54,9 @@ export async function AppShell({ title, subtitle, children }: AppShellProps) {
             )}
           </div>
         </header>
-        <div className="flex-1 overflow-y-auto px-5 py-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-6 pt-5">
+          {children}
+        </div>
         <BottomNav />
       </div>
     </main>
