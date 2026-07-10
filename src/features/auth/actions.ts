@@ -7,7 +7,7 @@ import { hasSupabaseConfig } from "@/lib/supabase/env";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export async function signInWithEmailAction(formData: FormData) {
+export async function connectEmailAction(formData: FormData) {
   if (!hasSupabaseConfig()) {
     redirect("/login?error=config");
   }
@@ -23,21 +23,47 @@ export async function signInWithEmailAction(formData: FormData) {
   const requestHeaders = await headers();
   const origin = requestHeaders.get("origin") ?? "http://localhost:3000";
   const supabase = await createClient();
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  let user = userData.user;
 
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`,
-      shouldCreateUser: true,
+  if (userError || !user) {
+    const { data: anonymousData, error: anonymousError } =
+      await supabase.auth.signInAnonymously();
+
+    if (anonymousError || !anonymousData.user) {
+      redirect("/login?error=session");
+    }
+
+    user = anonymousData.user;
+  }
+
+  if (!user.is_anonymous) {
+    redirect("/login?already=1");
+  }
+
+  const nextPath = encodeURIComponent("/login?linked=1");
+  const { error } = await supabase.auth.updateUser(
+    { email },
+    {
+      emailRedirectTo: `${origin}/auth/callback?next=${nextPath}`,
     },
-  });
+  );
 
   if (error) {
-    console.error("signInWithEmailAction failed", error);
+    console.error("connectEmailAction failed", error);
+
+    if (isEmailConflictError(error)) {
+      redirect("/login?error=email_exists");
+    }
+
     redirect("/login?error=auth");
   }
 
   redirect("/login?sent=1");
+}
+
+export async function signInWithEmailAction(formData: FormData) {
+  return connectEmailAction(formData);
 }
 
 export async function signOutAction() {
@@ -51,4 +77,17 @@ export async function signOutAction() {
   }
 
   redirect("/");
+}
+
+function isEmailConflictError(error: {
+  message?: string;
+  code?: string;
+  name?: string;
+}) {
+  const errorText = `${error.code ?? ""} ${error.name ?? ""} ${error.message ?? ""}`
+    .toLowerCase();
+
+  return ["already", "registered", "exists", "taken", "duplicate"].some((keyword) =>
+    errorText.includes(keyword),
+  );
 }

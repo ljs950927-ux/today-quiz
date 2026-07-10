@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogIn, LogOut } from "lucide-react";
+import { LogOut, Mail } from "lucide-react";
 import { BottomNav } from "@/components/layout/bottom-nav";
 import { signOutAction } from "@/features/auth/actions";
 import { getCurrentUser } from "@/features/auth/session";
@@ -47,9 +47,9 @@ export async function AppShell({ title, subtitle, children }: AppShellProps) {
               <Link
                 href="/login"
                 className="touch-target inline-flex shrink-0 items-center justify-center rounded-lg border border-app-line bg-white px-3 text-sm font-semibold text-app-ink shadow-sm"
-                aria-label="로그인"
+                aria-label="이메일로 기록 보관하기"
               >
-                <LogIn aria-hidden="true" className="h-5 w-5" />
+                <Mail aria-hidden="true" className="h-5 w-5" />
               </Link>
             )}
           </div>

@@ -1,4 +1,6 @@
 import { CheckCircle2, XCircle } from "lucide-react";
+import { AnonymousSessionGuard } from "@/components/auth/anonymous-session-guard";
+import { EmailRecordCta } from "@/components/auth/email-record-cta";
 import { AppShell } from "@/components/layout/app-shell";
 import { StatusPill } from "@/components/ui/status-pill";
 import { getAnswerHistory } from "@/features/history/api";
@@ -17,24 +19,28 @@ export default async function HistoryPage() {
 
   return (
     <AppShell title="풀이 기록" subtitle="날짜별 퀴즈 결과를 확인합니다">
-      {result.status === "error" ? (
-        <HistoryStateCard title="기록을 불러오지 못했습니다" message={result.message} />
-      ) : null}
+      <div className="space-y-4">
+        <AnonymousSessionGuard />
+        {result.status === "error" ? (
+          <HistoryStateCard title="기록을 불러오지 못했습니다" message={result.message} />
+        ) : null}
 
-      {result.status === "success" && result.items.length === 0 ? (
-        <HistoryStateCard
-          title="아직 푼 퀴즈가 없습니다"
-          message="오늘의 퀴즈를 풀면 이곳에 기록이 쌓입니다."
-        />
-      ) : null}
+        {result.status === "success" && result.items.length === 0 ? (
+          <HistoryStateCard
+            title="아직 푼 퀴즈가 없습니다"
+            message="오늘의 퀴즈를 풀면 이곳에 기록이 쌓입니다."
+          />
+        ) : null}
 
-      {result.status === "success" && result.items.length > 0 ? (
-        <div className="space-y-3">
-          {result.items.map((item) => (
-            <HistoryCard key={item.id} item={item} />
-          ))}
-        </div>
-      ) : null}
+        {result.status === "success" && result.items.length > 0 ? (
+          <div className="space-y-3">
+            {result.items.map((item) => (
+              <HistoryCard key={item.id} item={item} />
+            ))}
+          </div>
+        ) : null}
+        <EmailRecordCta />
+      </div>
     </AppShell>
   );
 }

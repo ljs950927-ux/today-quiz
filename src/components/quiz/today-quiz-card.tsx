@@ -26,6 +26,7 @@ import type { QuizChoice, QuizSummary } from "@/types/quiz";
 
 type TodayQuizCardProps = {
   quiz: QuizSummary;
+  showRecordCta?: boolean;
 };
 
 const difficultyLabel = {
@@ -34,7 +35,7 @@ const difficultyLabel = {
   hard: "어려움",
 };
 
-export function TodayQuizCard({ quiz }: TodayQuizCardProps) {
+export function TodayQuizCard({ quiz, showRecordCta = true }: TodayQuizCardProps) {
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(
     quiz.selectedIndex,
@@ -196,12 +197,14 @@ export function TodayQuizCard({ quiz }: TodayQuizCardProps) {
         </button>
       </form>
 
-      <p className="mt-3 text-center text-sm font-semibold text-app-muted">
-        <Link href="/login" className="text-app-teal underline-offset-4 hover:underline">
-          로그인
-        </Link>
-        하면 다른 기기에서도 기록을 이어볼 수 있어요.
-      </p>
+      {showRecordCta ? (
+        <p className="mt-3 text-center text-sm font-semibold text-app-muted">
+          <Link href="/login" className="text-app-teal underline-offset-4 hover:underline">
+            이메일로 기록 보관하기
+          </Link>
+          는 선택이에요.
+        </p>
+      ) : null}
 
       {answer ? <AnswerResultCard answer={answer} /> : null}
     </section>

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { AlertCircle, CalendarCheck2, Inbox } from "lucide-react";
 import { AppShell } from "@/components/layout/app-shell";
 import { TodayQuizCard } from "@/components/quiz/today-quiz-card";
+import { getCurrentUser } from "@/features/auth/session";
 import { getTodayQuiz } from "@/features/quiz/api";
 
 export const dynamic = "force-dynamic";
@@ -37,10 +38,15 @@ function TodayStatusBanner() {
 }
 
 async function TodayQuizContent() {
-  const quizResult = await getTodayQuiz();
+  const [quizResult, user] = await Promise.all([getTodayQuiz(), getCurrentUser()]);
 
   if (quizResult.status === "success") {
-    return <TodayQuizCard quiz={quizResult.quiz} />;
+    return (
+      <TodayQuizCard
+        quiz={quizResult.quiz}
+        showRecordCta={!user || user.isAnonymous}
+      />
+    );
   }
 
   if (quizResult.status === "empty") {

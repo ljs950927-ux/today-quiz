@@ -6,6 +6,7 @@ export type AnonymousSessionResult =
   | {
       status: "success";
       isAnonymous: boolean;
+      created: boolean;
     }
   | {
       status: "error";
@@ -29,6 +30,7 @@ export async function ensureAnonymousSession(): Promise<AnonymousSessionResult> 
       return {
         status: "success",
         isAnonymous: Boolean(sessionData.session.user.is_anonymous),
+        created: false,
       };
     }
 
@@ -45,6 +47,7 @@ export async function ensureAnonymousSession(): Promise<AnonymousSessionResult> 
     return {
       status: "success",
       isAnonymous: Boolean(data.user?.is_anonymous),
+      created: true,
     };
   } catch {
     return {

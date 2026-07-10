@@ -29,6 +29,15 @@ export async function getAnswerHistory(): Promise<AnswerHistoryResult> {
 
   try {
     const supabase = await createClient();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (!userData.user) {
+      return {
+        status: "success",
+        items: [],
+      };
+    }
+
     const { data, error } = await supabase.rpc("get_answer_history");
 
     if (error) {
